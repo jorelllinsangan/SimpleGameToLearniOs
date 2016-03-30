@@ -65,14 +65,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.physicsBody = SKPhysicsBody(rectangleOfSize: player.size) // 1
         player.physicsBody?.dynamic = true // 2
         player.physicsBody?.categoryBitMask = PhysicsCategory.Player // 3
-        player.physicsBody?.contactTestBitMask = PhysicsCategory.Projectile // 4
+        player.physicsBody?.contactTestBitMask = PhysicsCategory.Monster // 4
         player.physicsBody?.collisionBitMask = PhysicsCategory.None // 5
+        
         // 2
         backgroundColor = SKColor.whiteColor()
         // 3
         player.position = CGPoint(x: size.width * 0.1, y: size.height * 0.5)
         // 4
         
+        print(player.physicsBody)
         
         updateScore()
         displayAmmo()
@@ -129,8 +131,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let gameOverScene = GameOverScene(size: self.size, won:false, monstersDestroyed: self.monstersDestroyed)
             self.view?.presentScene(gameOverScene, transition: reveal)
         }
-        monster.runAction(SKAction.sequence([actionMove, loseAction, actionMoveDone]))
-        
+//        monster.runAction(SKAction.sequence([actionMove, loseAction, actionMoveDone]))
+        monster.runAction(SKAction.sequence([actionMove, actionMoveDone]))
     }
     
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -230,7 +232,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         monster.removeFromParent()
         
         let reveal = SKTransition.flipHorizontalWithDuration(0.5)
-        let gameOverScene = GameOverScene(size: size, won: true, monstersDestroyed: monstersDestroyed)
+        let gameOverScene = GameOverScene(size: size, won: false, monstersDestroyed: monstersDestroyed)
         self.view?.presentScene(gameOverScene, transition: reveal)
     }
     
@@ -248,14 +250,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         
-        
         // 2
         if ((firstBody.categoryBitMask & PhysicsCategory.Monster != 0) &&
             (secondBody.categoryBitMask & PhysicsCategory.Projectile != 0)) {
             projectileDidCollideWithMonster(firstBody.node as! SKSpriteNode, monster: secondBody.node as! SKSpriteNode)
-        } else if ((firstBody.categoryBitMask & PhysicsCategory.Player != 0) &&
-            (secondBody.categoryBitMask & PhysicsCategory.Monster != 0)) {
-            monsterDidCollideWithPlayer(firstBody.node as! SKSpriteNode, monster: secondBody.node as! SKSpriteNode)
+        } else if ((firstBody.categoryBitMask & PhysicsCategory.Monster != 0) &&
+            (secondBody.categoryBitMask & PhysicsCategory.Player != 0)) {
+            monsterDidCollideWithPlayer(secondBody.node as! SKSpriteNode, monster: firstBody.node as! SKSpriteNode)
         }
         
         
